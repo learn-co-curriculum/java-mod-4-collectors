@@ -103,7 +103,7 @@ List<String> userNames = userList.stream()
 ## Aggregating Results into a Single Value
 
 There are several methods that accumulates or aggregates stream elements into a
-single value. Here are some of the methods you’re likely to use:
+single value. Here are some of the common methods:
 
 - `summingInt`, `summingLong`, `summingDouble`: These sum up stream elements
   after mapping them to an `Integer`/ `Long` / `Double` value.
@@ -113,6 +113,9 @@ single value. Here are some of the methods you’re likely to use:
   arithmetic mean of the stream elements based on the provided `ToIntFunction`.
   The return value is always a `double`.
 - `counting`: This method counts the number of elements in the stream.
+- `reducing`: Reduces stream elements based on the `BinaryOperator` function
+  provided.
+- `mapping`: Maps all the stream elements based on the mapping function.
 
 Let’s look a few examples:
 
