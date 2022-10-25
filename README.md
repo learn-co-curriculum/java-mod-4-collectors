@@ -2,13 +2,25 @@
 
 ## Learning Goals
 
-- Explain collectors in Java.
-- Use collectors in stream pipelines.
+- Define the `collect` method as a terminal stream operation.
+- Define the `Collector` interface.
+- Define the `Collectors` utility class that implements `Collector`.
+- Use different `Collectors` methods in a stream pipeline.
 
 ## Introduction
 
-The `collect` method along with the `stream.Collectors` utility provide
-different ways of collecting, aggregating, and grouping values. We’ll look at
+`<R,A> R collect(Collector<? super T,A,R> collector)`
+
+The `collect` method is a terminal operation that accepts a `Collector`
+ as an argument.  The `Collector`
+produces a data structure that contains elements from the stream,
+and may further reduce the values in the data structure to
+some final representation.  For example, a collector may
+create a `List` data structure to contain the stream elements,
+then perform a reduction by averaging the values in the list.
+
+The `Collectors` class implements the `Collector` interface and provides
+convenient ways of collecting, aggregating, and grouping values. We’ll look at
 each of these in the following sections.
 
 ## Collecting Elements in a Collection
@@ -58,7 +70,9 @@ class User {
 }
 ```
 
-Let’s look at a `toList` method example to understand how to collect elements.
+Let’s look at a `Collectors.toList` method example to understand how to collect elements.
+The pipeline uses the `map` function to produce a stream containing the names of the users.
+The collector transforms the stream of names into a list of names.
 
 ```java
 class Example {
@@ -80,17 +94,6 @@ class Example {
 }
 ```
 
-Note that we could have used the `toList` method after `map` directly but we’re
-using `collect` for demonstrating its usage.
-
-Here’s how we would use `toList` directly:
-
-```java
-List<String> userNames = userList.stream()
-                                    .map(User::getName)
-                                    .toList();
-```
-
 The `Collectors` class also provides a `toCollection` method that allows us to
 specify collections other than lists, sets, or maps.
 
@@ -102,7 +105,7 @@ List<String> userNames = userList.stream()
 
 ## Aggregating Results into a Single Value
 
-There are several methods that accumulates or aggregates stream elements into a
+There are several methods that accumulate or aggregate stream elements into a
 single value. Here are some of the common methods:
 
 - `summingInt`, `summingLong`, `summingDouble`: These sum up stream elements
@@ -120,6 +123,12 @@ single value. Here are some of the common methods:
 Let’s look a few examples:
 
 ```java
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.Comparator;
+
 class Example {
     public static void main(String[] args) throws Exception {
         List<User> users = new ArrayList<>();
@@ -130,22 +139,22 @@ class Example {
         users.add(new User("Momo" , 58, 5400, "CA"));
 
         int totalDistanceTravelledByUsers = users.stream()
-                                            .collect(Collectors.summingInt(user -> user.getDistanceTravelled()));
+            .collect(Collectors.summingInt(User::getDistanceTravelled));
         System.out.println(totalDistanceTravelledByUsers); // 22500
 
         double averageUserAge = users.stream()
-                                    .collect(Collectors.averagingInt(user -> user.getAge()));
+            .collect(Collectors.averagingInt(User::getAge));
         System.out.println(averageUserAge); // 45.2
 
         Optional<User> youngestUser = users.stream()
-                                        .collect(Collectors.minBy(comparing(User::getAge)));
+            .collect(Collectors.minBy(Comparator.comparing(User::getAge)));
         System.out.println(youngestUser.get()); // User{name='John', age=24, distanceTravelled=23000, state=NY}
 
         long usersTravelledOver5000 = users.stream()
-                                        .filter(user -> user.getDistanceTravelled() > 5000)
-                                        .collect(Collectors.counting());
+            .filter(user -> user.getDistanceTravelled() > 5000)
+            .collect(Collectors.counting());
         System.out.println(usersTravelledOver5000); // 3
-    }
+  }
 }
 ```
 
@@ -189,7 +198,9 @@ class Example {
 ```
 
 The `true` key contains a `List` of `User` objects that satisfy the condition
-passed to the `partitioningBy` method. The `false` key contains a `List` of
+passed to the `partitioningBy` method. 
+
+The `false` key contains a `List` of
 `User` objects which did not match the condition.
 
 ### GroupingBy
@@ -327,7 +338,14 @@ We are using the `mapping` collector to map the list of `User` objects into a
 list of user names (`String`). This is a great way to shape the data for easier
 representation and manipulation.
 
-## Conclusion
+## Summary
 
 We have learned about several collector methods and also learned how to divide
 elements based on predicates or classification functions.
+
+
+## Resources
+
+[Java 11 Collector](https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/stream/Collector.html)  
+[Java 11 Collectors](https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/stream/Collectors.html)
+[Java 11 Stream](https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/stream/Stream.html)  
